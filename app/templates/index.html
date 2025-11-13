@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Bookshelf</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
+
+</head>
+
+<body>
+  <div class="header">
+    <div class="header-content">
+      <div class="title">Libros</div>
+      <div class="search-wrapper">
+        <div class="search-bar">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <input type="text" class="search-input" id="searchInput" placeholder="Search by title...">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bookshelf-wrapper">
+    <div class="bookshelf-box">
+      <div class="bookshelf-inner" id="bookshelfContainer">
+        <!-- <div class="loading">
+          <div class="spinner"></div>
+          Loading books...
+        </div>
+      </div> -->
+      </div>
+    </div>
+
+    <!-- <div class="api-info">
+      <strong>FastAPI Backend:</strong>
+      <div>GET http://localhost:8000/books/search?q=query</div>
+      <div>GET http://localhost:8000/recommendations</div>
+      <div class="api-status" id="apiStatus">Ready</div>
+    </div> -->
+
+    <script>
+      const API_URL = 'http://localhost:8000';
+
+      // initialize autocomplete
+      const autoCompleteJS = new autoComplete({
+        selector: "#searchInput",
+        placeHolder: "Search by title...",
+        threshold: 1,
+        debounce: 300,
+        data: {
+          src: async (query) => {
+            try {
+              const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
+              const data = await response.json();
+              return data.map(book => book.title);
+            } catch (error) {
+              console.error(error);
+              return [];
+            }
+          },
+          cache: false
+        },
+        resultsList: {
+          tag: "ul",
+          id: "autoComplete_list",
+          class: "search-suggestions",
+          element: (list, data) => {
+            if (!data.results.length) {
+              const message = document.createElement("div");
+              message.className = "no-results";
+              message.innerHTML = `No results for "${data.query}"`;
+              list.prepend(message);
+            }
+          }
+        },
+        resultItem: {
+          // highlight: true,
+          element: (item, data) => {
+            item.innerHTML = `<div class="suggestion-item">${data.match}</div>`;
+          }
+        },
+        events: {
+          input: {
+            selection: (event) => {
+              const selection = event.detail.selection.value;
+              document.querySelector("#searchInput").value = selection;
+
+              fetchRecommendations(selection)
+
+            }
+          },
+        }
+      });
+
+      document.getElementById('searchInput').addEventListener('keydown', (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const title = event.target.value.trim();
+          if (title) {
+            autoCompleteJS.close();
+            event.target.blur();
+            fetchRecommendations(title);
+          }
+        }
+      });
+
+      function renderBooks(books) {
+        const container = document.getElementById('bookshelfContainer');
+
+        if (books.length === 0) {
+          container.innerHTML = '<div class="no-results">No books found</div>';
+          return;
+        }
+
+        const booksPerShelf = 5;
+        const shelves = [];
+
+        for (let i = 0; i < books.length; i += booksPerShelf) {
+          shelves.push(books.slice(i, i + booksPerShelf));
+        }
+
+        container.innerHTML = shelves.map(shelf => `
+                <div class="shelf-unit">
+                    <div class="books-container">
+                        ${shelf.map(book => `
+                            <div class="book">
+                                <div class="book-cover">
+                                    <div class="book-title-overlay">${book.title}</div>
+                                    <img src="../static/book_cover_1.jpg" alt="${book.title}"></img>
+                                </div>
+                                <div class="book-tooltip">
+                                    <div class="tooltip-title">${book.title}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+      }
+
+      async function fetchRecommendations(title) {
+
+        try {
+          const response = await fetch(`${API_URL}/recommendations`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, top_n: 10, min_similarity: 0.2 })
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+          }
+          const data = await response.json();
+          renderBooks(data.recommendations);
+        }
+        catch (error) {
+          console.error('Recommendation error:', error);
+          document.getElementById('bookshelfContainer').innerHTML =
+            '<div class="error">Failed to load recommendations</div>';
+        }
+      }
+    </script>
+</body>
+
+</html>
