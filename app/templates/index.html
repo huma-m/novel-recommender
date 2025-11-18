@@ -133,7 +133,7 @@
                             <div class="book">
                                 <div class="book-cover">
                                     <div class="book-title-overlay">${book.title}</div>
-                                    <img src="../static/book_cover_1.jpg" alt="${book.title}"></img>
+                                    <img src="../static/book_cover_2.jpg" alt="${book.title}"></img>
                                 </div>
                                 <div class="book-tooltip">
                                     <div class="tooltip-title">${book.title}</div>
@@ -151,7 +151,7 @@
           const response = await fetch(`${API_URL}/recommendations`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, top_n: 10, min_similarity: 0.2 })
+            body: JSON.stringify({ title, top_n: 20, min_similarity: 0.2 })
           });
           if (!response.ok) {
             throw new Error(`HTTP error: ${response.status}`);

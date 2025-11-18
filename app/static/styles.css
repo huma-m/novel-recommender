@@ -13,18 +13,20 @@ body {
 }
 
 @font-face {
-  font-family: 'Brush Font';
-  src: url('/static/fonts/JamesStroker-jEZMO.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'Brush Font';
+    src: url('/static/fonts/JamesStroker-jEZMO.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
 }
+
 @font-face {
-  font-family: 'Medieval Font';
-  src: url('/static/fonts/Kastroz-0v5G9.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  text-transform: unset;
+    font-family: 'Valty Font';
+    src: url('/static/fonts/Valty DEMO.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    text-transform: unset;
 }
+
 .header {
     /* background: linear-gradient(135deg, #b8860b 0%, #daa520 50%, #b8860b 100%); */
     padding: 20px 30px;
@@ -125,7 +127,7 @@ body {
 }
 
 .search-suggestions li[aria-selected="true"] {
-  background-color: black;
+    background-color: black;
 }
 
 .no-results {
@@ -210,7 +212,7 @@ body {
     align-items: flex-end;
     /* gap: 28px; */
     min-height: 240px;
-    padding-bottom: 12px;
+    padding-bottom: 14px;
     overflow: visible;
 }
 
@@ -230,7 +232,6 @@ body {
 .book-cover {
     width: 130px;
     height: 190px;
-    border-radius: 2px;
     box-shadow:
         3px 3px 8px rgba(0, 0, 0, 0.3),
         6px 6px 15px rgba(0, 0, 0, 0.2),
@@ -238,34 +239,43 @@ body {
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    transform: perspective(600px) rotateY(-2deg);
+    /* transform: perspective(600px) rotateY(-2deg); */
+    transform: scale(1.1);
+    filter: brightness(1.1);
 }
 
 .book-title-overlay {
-  position: absolute;
-  top: 22px;
-  left: 0;
-  width: 100%;
-  padding: 5px 16px;
-  text-align: center;
-  font-family: 'Brush Font', serif;
-  font-size: 18px;
-  color: rgba(0,0,0,0.6); 
-  letter-spacing: 0.6px;
-  pointer-events: none;
-  z-index: 2;
-  text-shadow:
-    1px 1px 0 rgba(255,255,255,0.06),
-    -2px -2px 6px rgba(0,0,0,0.55);
+    position: absolute;
+    top: 24px;
+    left: 0;
+    width: 100%;
+    padding: 5px 16px;
+    text-align: center;
+    font-family: 'Valty Font', serif;
+    font-size: 18px;
+    word-break: break-word;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    color: rgb(0 0 0 / 86%);
+    letter-spacing: 0.7px;
+    pointer-events: none;
+    z-index: 2;
+    text-shadow:
+        0px -1px 0 rgb(255 255 255 / 6%), 
+        0px 0px 8px rgb(111 74 52);
+    /* 1px 1px 0 rgba(255, 255, 255, 0.06),
+        -2px -2px 6px rgba(0, 0, 0, 0.55); */
 }
 
 .book-title-overlay::before {
-  content: '';
-  position: absolute;
-  inset: -6px; 
-  background: transparent;
-  pointer-events: none;
-  z-index: -1;
+    content: '';
+    position: absolute;
+    inset: -6px;
+    background: transparent;
+    pointer-events: none;
+    z-index: -1;
 }
 
 /* .book-title-overlay {

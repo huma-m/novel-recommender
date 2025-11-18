@@ -7,7 +7,13 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.data_loader import load_data
-from src.recommender_base_tag import add_cluster_column, compute_tag_similarity, recommend_novels, get_novel_data
+from src.recommender_base_tag import (
+    add_cluster_column, 
+    compute_tag_similarity, 
+    compute_desc_similarity, 
+    recommend_novels,
+    combine_similarities,
+)
 
 app = FastAPI()
 
@@ -22,7 +28,9 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 novels, tag_clusters = load_data()
 novels = add_cluster_column(novels, tag_clusters)
-similarity = compute_tag_similarity(novels)
+tag_similarity = compute_tag_similarity(novels)
+desc_similarity = compute_desc_similarity(novels)
+similarity = combine_similarities(tag_similarity, desc_similarity, tag_weight=0.5, desc_weight=0.5)
 
 class RecommendationRequest(BaseModel):
     title: str
@@ -44,15 +52,11 @@ def searchBooks(q: str):
     q = q.strip()
     if not q:
         return []
-    results = []
-    for idx, row in novels.iterrows():
-        if q.lower() in row['title'].lower():
-            book = {
-                "title": row['title'],
-                "id": idx
-            }
-            results.append(book)
-    return results[:10]
+    mask = novels['title'].str.lower().str.contains(q.lower())
+    matches = novels[mask].head(10)
+    results = matches[['title']].reset_index().to_dict(orient='records')
+    # results = search_novels(q, limit=10)
+    return results
 
 @app.post("/recommendations")
 def get_recommendations(request: RecommendationRequest):
