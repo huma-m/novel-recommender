@@ -1,46 +1,14 @@
-from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
-import os
+from src.data_loader import load_data
 import numpy as np
 
-CACHE_DIR = "data/cache"
-os.makedirs(CACHE_DIR, exist_ok=True)
-TAG_SIMILARITY_CACHE = os.path.join(CACHE_DIR, "tag_similarity.npy")
-DESC_EMBEDDING_CACHE = os.path.join(CACHE_DIR, "desc_embedding.npy")
-DESC_SIMILARITY_CACHE = os.path.join(CACHE_DIR, "desc_similarity.npy")
 
-def add_cluster_column(novels, tag_clusters):
-    novels['clusters'] = novels['tags'].apply(
-        lambda tags:[tag_clusters[t] for t in tags if t in tag_clusters]
-        )
-    return novels
+def compute_similarities(novels, tag_weight=0.4, desc_weight=0.6):
+    tag_matrix = np.vstack(novels["tag_embedding"].values)
+    desc_matrix = np.vstack(novels["desc_embedding"].values)
 
-def compute_tag_similarity(novels):
-    if os.path.exists(TAG_SIMILARITY_CACHE):
-        return np.load(TAG_SIMILARITY_CACHE)
-    
-    mlb = MultiLabelBinarizer()
-    tag_matrix = mlb.fit_transform(novels['clusters'])
-    similarity = cosine_similarity(tag_matrix)
-    np.save(TAG_SIMILARITY_CACHE, similarity)
-    return similarity
-
-def compute_desc_similarity(novels):
-    if os.path.exists(DESC_SIMILARITY_CACHE):
-        return np.load(DESC_SIMILARITY_CACHE)
-    
-    if os.path.exists(DESC_EMBEDDING_CACHE):
-        embedding = np.load(DESC_EMBEDDING_CACHE)
-    else:    
-        model = SentenceTransformer('all-MiniLM-L6-v2')
-        embedding = model.encode(novels['description'].tolist())
-        np.save(DESC_EMBEDDING_CACHE, embedding)
-    similarity = cosine_similarity(embedding)
-    np.save(DESC_SIMILARITY_CACHE, similarity)
-    return similarity
-
-def combine_similarities(tag_similarity, desc_similarity, tag_weight=0.4, desc_weight=0.6):
+    tag_similarity = cosine_similarity(tag_matrix)
+    desc_similarity = cosine_similarity(desc_matrix)
     assert abs(tag_weight + desc_weight - 1.0) < 1e-6, "Weights must sum to 1"
     combined = (tag_similarity * tag_weight) + (desc_similarity * desc_weight)
     return combined
@@ -80,3 +48,10 @@ def recommend_novels(title, novels, similarity, top_n=5, min_similarity=0.2):
         recommendations.append(rec)
     
     return recommendations
+
+if __name__ == "__main__":
+    novels = load_data()
+    similarity = compute_similarities(novels, 0.5, 0.5)
+    recs = recommend_novels("Kaleidoscope of Death", novels, similarity, 10)
+    for i in recs:
+        print(i.get('title'))

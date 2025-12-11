@@ -18,11 +18,16 @@ body {
     font-weight: normal;
     font-style: normal;
 }
-
 @font-face {
     font-family: 'Valty Font';
     src: url('/static/fonts/Valty DEMO.otf') format('opentype');
     font-weight: normal;
+    font-style: normal;
+    text-transform: unset;
+}
+@font-face {
+    font-family: 'Golden Leaf Font';
+    src: url('/static/fonts/GoldleafBoldPersonalUseBold-eZ4dO.ttf') format('opentype');
     font-style: normal;
     text-transform: unset;
 }
@@ -175,7 +180,7 @@ body {
 .bookshelf-inner {
     /* background: linear-gradient(to bottom, #e8dcc4, #d4c5a9); */
     position: relative;
-    background-image: url("/static/wood_texture.jpg");
+    background-image: url("/static/images/wood_texture.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 10px;
@@ -222,7 +227,9 @@ body {
     transition: all 0.3s ease;
     transform-style: preserve-3d;
 }
-
+/* .book:hover .book-title-overlay {
+  
+} */
 .book:hover {
     transform: translateY(-15px) scale(1.05);
     z-index: 10;
@@ -246,25 +253,28 @@ body {
 
 .book-title-overlay {
     position: absolute;
-    top: 24px;
+    top: 28px;
     left: 0;
     width: 100%;
-    padding: 5px 16px;
+    padding: 0px 16px;
     text-align: center;
     font-family: 'Valty Font', serif;
-    font-size: 18px;
+    font-size: 19px;
     word-break: break-word;
     overflow: hidden;
     display: -webkit-box;
+    line-clamp: 6;
     -webkit-line-clamp: 6;
     -webkit-box-orient: vertical;
-    color: rgb(0 0 0 / 86%);
+    color: rgb(0 0 0 / 90%);
     letter-spacing: 0.7px;
+    line-height: 1.15;
     pointer-events: none;
     z-index: 2;
+    filter: brightness(1.5);
     text-shadow:
         0px -1px 0 rgb(255 255 255 / 6%), 
-        0px 0px 8px rgb(111 74 52);
+        0px 0px 8px rgb(143 99 72);
     /* 1px 1px 0 rgba(255, 255, 255, 0.06),
         -2px -2px 6px rgba(0, 0, 0, 0.55); */
 }
@@ -277,20 +287,6 @@ body {
     pointer-events: none;
     z-index: -1;
 }
-
-/* .book-title-overlay {
-  position: absolute;
-  top: 20px;
-  width: 100%;
-  padding: 5px 16px;
-  text-align: center;
-  font-family: 'BookFont', sans-serif;
-  font-size: 18px;
-  color: wheat;
-  z-index: 1;
-  pointer-events: none; 
-  letter-spacing: 1px;
-} */
 
 .book-cover img {
     width: 100%;
@@ -317,9 +313,9 @@ body {
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.92);
     color: white;
-    padding: 10px 14px;
+    padding: 8px 10px;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: 15px;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -333,7 +329,7 @@ body {
 }
 
 .tooltip-title {
-    font-weight: bold;
+    font-weight: 700;
     margin-bottom: 3px;
 }
 

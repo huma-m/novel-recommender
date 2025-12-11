@@ -7,13 +7,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.data_loader import load_data
-from src.recommender_base_tag import (
-    add_cluster_column, 
-    compute_tag_similarity, 
-    compute_desc_similarity, 
-    recommend_novels,
-    combine_similarities,
-)
+from src.recommender_base_tag import recommend_novels, compute_similarities
 
 app = FastAPI()
 
@@ -26,11 +20,10 @@ app.add_middleware(
 )
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-novels, tag_clusters = load_data()
-novels = add_cluster_column(novels, tag_clusters)
-tag_similarity = compute_tag_similarity(novels)
-desc_similarity = compute_desc_similarity(novels)
-similarity = combine_similarities(tag_similarity, desc_similarity, tag_weight=0.5, desc_weight=0.5)
+novels = load_data()
+# tag_similarity = compute_tag_similarity(novels)
+# desc_similarity = compute_desc_similarity(novels)
+similarity = compute_similarities(novels, tag_weight=0.5, desc_weight=0.5)
 
 class RecommendationRequest(BaseModel):
     title: str
