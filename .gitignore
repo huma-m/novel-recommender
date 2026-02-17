@@ -1,0 +1,14 @@
+.env
+.env.local
+.env.*.local
+*.pyc
+__pycache__/
+__init__.py
+.venv/
+venv/
+*.db
+logs/
+.DS_Store
+data/
+.vscode
+notebooks/

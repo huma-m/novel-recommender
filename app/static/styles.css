@@ -1,3 +1,12 @@
+:root {
+    --scroll-side-gap: 8vw;
+
+    --scroll-max-height: 80vh;
+
+    --scroll-min-width: 520px;
+    --scroll-max-width: 1200px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -12,28 +21,18 @@ body {
     flex-direction: column;
 }
 
-@font-face {
-    font-family: 'Brush Font';
-    src: url('/static/fonts/JamesStroker-jEZMO.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+body.lock-scroll {
+    overflow: hidden;
+    height: 100vh;
 }
+
+
 @font-face {
     font-family: 'Valty Font';
     src: url('/static/fonts/Valty DEMO.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-    text-transform: unset;
-}
-@font-face {
-    font-family: 'Golden Leaf Font';
-    src: url('/static/fonts/GoldleafBoldPersonalUseBold-eZ4dO.ttf') format('opentype');
-    font-style: normal;
-    text-transform: unset;
 }
 
 .header {
-    /* background: linear-gradient(135deg, #b8860b 0%, #daa520 50%, #b8860b 100%); */
     padding: 20px 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
@@ -147,7 +146,6 @@ body {
     justify-content: center;
     align-items: center;
     padding: 40px 20px;
-    /* perspective: 2000px; */
 }
 
 .bookshelf-box {
@@ -155,36 +153,27 @@ body {
     max-width: 1100px;
     border-radius: 15px;
     padding: 30px;
-    /* box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.6),
-        inset 0 2px 0 rgba(255, 255, 255, 0.2),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.3); */
     position: relative;
     transform: rotateX(5deg);
     transform-style: preserve-3d;
+    box-shadow: inset 0 0 0 6px #232323, inset 0 8px 14px rgba(0, 0, 0, 0.45), inset 0 -10px 16px rgba(0, 0, 0, 0.45);
 }
 
 .bookshelf-box::before {
     content: '';
     position: absolute;
     inset: 15px;
-    /* background: linear-gradient(to bottom,
-            rgba(0, 0, 0, 0.05) 0%,
-            transparent 10%,
-            transparent 90%,
-            rgba(0, 0, 0, 0.1) 100%); */
     border-radius: 8px;
     pointer-events: none;
 }
 
 .bookshelf-inner {
-    /* background: linear-gradient(to bottom, #e8dcc4, #d4c5a9); */
     position: relative;
-    background-image: url("/static/images/wood_texture.jpg");
+    background-image: url("/static/images/Industrial Materials.jpeg");
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 10px;
-    padding: 25px 0px;
+    padding: 30px 0px;
     z-index: 2;
     box-shadow:
         inset 0 3px 15px rgba(0, 0, 0, 0.2),
@@ -194,7 +183,7 @@ body {
 .shelf-unit {
     margin-bottom: 30px;
     border-radius: 8px;
-    padding: 25px 20px 15px;
+    padding: 15px 20px 15px;
     position: relative;
 }
 
@@ -205,11 +194,35 @@ body {
     left: 0;
     right: 0;
     height: 12px;
-    background: #58290f;
+
+    background-image: url("../static/images/Industrial Materials.jpeg");
+
     box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.4),
-        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 18px 15px rgba(0, 0, 0, 0.45),
+        0 5px 8px rgba(0, 0, 0, 0.45);
+
+    border-radius: 2px;
+    filter: brightness(1.5);
 }
+
+.shelf-unit::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45px;
+
+    background-image: url("../static/images/Industrial Materials.jpeg");
+    background-size: 280px 100%;
+    background-repeat: repeat-x;
+
+    opacity: 0.9;
+    pointer-events: none;
+    filter: brightness(0.5);
+}
+
 
 .books-container {
     display: flex;
@@ -224,16 +237,21 @@ body {
 .book {
     position: relative;
     cursor: pointer;
-    transition: all 0.3s ease;
     transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.5s;
+    z-index: 1;
+    filter: brightness(1.2);
 }
-/* .book:hover .book-title-overlay {
-  
-} */
+
 .book:hover {
-    transform: translateY(-15px) scale(1.05);
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     z-index: 10;
-    filter: brightness(1.1);
+    filter: brightness(1.7);
+}
+
+body.lock-scroll {
+    overflow: hidden;
 }
 
 .book-cover {
@@ -246,19 +264,18 @@ body {
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    /* transform: perspective(600px) rotateY(-2deg); */
     transform: scale(1.1);
     filter: brightness(1.1);
 }
 
 .book-title-overlay {
     position: absolute;
-    top: 28px;
+    top: 31px;
     left: 0;
     width: 100%;
     padding: 0px 16px;
     text-align: center;
-    font-family: 'Valty Font', serif;
+    font-family: "Valty Font";
     font-size: 19px;
     word-break: break-word;
     overflow: hidden;
@@ -266,17 +283,13 @@ body {
     line-clamp: 6;
     -webkit-line-clamp: 6;
     -webkit-box-orient: vertical;
-    color: rgb(0 0 0 / 90%);
+    color: rgb(141 106 49);
     letter-spacing: 0.7px;
     line-height: 1.15;
     pointer-events: none;
     z-index: 2;
-    filter: brightness(1.5);
     text-shadow:
-        0px -1px 0 rgb(255 255 255 / 6%), 
-        0px 0px 8px rgb(143 99 72);
-    /* 1px 1px 0 rgba(255, 255, 255, 0.06),
-        -2px -2px 6px rgba(0, 0, 0, 0.55); */
+        1px 0px 0px rgb(32 21 4), 1px 1px 3px rgb(0 0 0);
 }
 
 .book-title-overlay::before {
@@ -329,7 +342,7 @@ body {
 }
 
 .tooltip-title {
-    font-weight: 700;
+    font-weight: 500;
     margin-bottom: 3px;
 }
 
@@ -342,7 +355,7 @@ body {
 
 .spinner {
     border: 7px solid rgba(255, 255, 255, 0.1);
-    border-top: 7px solid #042916;
+    border-top: 7px solid #102639;
     border-radius: 50%;
     width: 70px;
     height: 70px;
@@ -391,4 +404,152 @@ body {
     margin-top: 8px;
     color: #b8860b;
     font-weight: bold;
+}
+
+.scroll-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 300;
+}
+
+.scroll-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.scroll {
+    display: flex;
+    align-items: center;
+
+    width: clamp(var(--scroll-min-width),
+            calc(100vw - (var(--scroll-side-gap) * 2)),
+            var(--scroll-max-width));
+
+    height: var(--scroll-max-height);
+}
+
+.handle-left,
+.handle-right {
+    width: auto;
+    height: 100%;
+    cursor: pointer;
+    user-select: none;
+    filter: brightness(0.8) saturate(0.85) contrast(0.9) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25));
+}
+
+.paper-mask {
+    flex: 1;
+    height: 46vh;
+    overflow: hidden;
+    margin-left: -5px;
+    margin-right: -6px;
+}
+
+.paper {
+    height: 100%;
+    background: url("../static/images/final-paper.png") repeat-y center / 100% auto;
+    padding: 31px 59px;
+    overflow-y: auto;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.paper::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}
+
+.introduction {
+    font-family: "IM Fell English", serif;
+    line-height: 1.6;
+    color: #0f1b2b;
+    letter-spacing: 0.7px;
+}
+
+h2.introduction {
+    font-size: 1.5em;
+    font-weight: 700;
+    text-align: center;
+}
+
+p.introduction {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: justify;
+    hyphens: auto;
+}
+
+.introduction a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.introduction a:hover {
+    text-shadow:
+        0 0 6px rgba(212, 175, 55, 0.5),
+        0 0 16px rgba(212, 175, 55, 0.35);
+}
+
+.modes {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 30px;
+    margin-top: 15px;
+}
+
+.lantern {
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.lantern-icon {
+    width: 50px;
+    height: 50px;
+}
+
+.lantern.active {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.lantern.active .lantern-icon {
+    filter: drop-shadow(0 0 10px #ffaa00) drop-shadow(0 0 20px #ff8800) drop-shadow(0 0 30px #ff6600) brightness(1.3);
+}
+
+.lantern-label {
+    font-family: "Valty Font", serif;
+    color: #ccc;
+    font-size: medium;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.lantern.active .lantern-label {
+    color: #ffaa00;
+    text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+}
+
+.lantern.active .lantern-icon {
+    filter:
+        sepia(60%) 
+        saturate(350%)
+        hue-rotate(-35deg) 
+        drop-shadow(0 0 10px #ffaa00) drop-shadow(0 0 20px #ff8800) drop-shadow(0 0 30px #ff6600);
+    transition: filter 0.3s ease;
 }
