@@ -66,7 +66,7 @@ class Recommendation(Base):
 class NovelDB:
     def __init__(self, db_path: str = None):
         if db_path is None:
-            db_path = os.getenv("DB_PATH", "data/novels_db.db")
+            db_path = os.getenv("DB_PATH", "data/novels_demo.db")
         self.engine = create_engine(f"sqlite:///{db_path}", echo=False)
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
