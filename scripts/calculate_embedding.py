@@ -5,7 +5,7 @@ from collections import Counter
 import math
 import logging
 
-from src.database.database_helper import NovelDB
+from src.database_helper import NovelDB
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -115,7 +115,4 @@ def store_embeddings():
     
     db.store_embeddings(results_df)
     logger.info("Done storing embeddings")
-    db.get_stats()    
-
-if __name__ == "__main__":
-    store_embeddings()
+    db.get_stats()

@@ -1,10 +1,8 @@
 from fastapi import FastAPI, HTTPException
-import uvicorn
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-import os
 
 from src.data_loader import load_data, get_gt_map
 from src.recommender import Recommender

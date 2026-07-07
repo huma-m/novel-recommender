@@ -1,4 +1,4 @@
-from src.database.database_helper import NovelDB
+from src.database_helper import NovelDB
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -8,7 +8,7 @@ _db = None
 def get_db():
     global _db
     if _db is None:
-        _db = NovelDB("data/novels_db.db")
+        _db = NovelDB()
     return _db
 
 def load_data():

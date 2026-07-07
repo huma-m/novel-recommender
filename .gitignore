@@ -6,9 +6,11 @@ __pycache__/
 __init__.py
 .venv/
 venv/
-*.db
 logs/
 .DS_Store
-data/
 .vscode
 notebooks/
+data/backup/
+data/novels_db.db
+requirements_dev.txt
+src/demo_database.py
