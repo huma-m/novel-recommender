@@ -183,17 +183,3 @@ class Recommender:
                 f"{np.mean(results[mode]['serendipity']):>10.3f}   | "
                 f"{np.mean(results[mode]['coverage']):>8.3f}"
             )  
-    
-# if __name__ == "__main__":
-#     from src.data_loader import load_data, get_gt_map
-#     novels_df = load_data()
-#     gt_map = get_gt_map(novels_df['id'])
-
-#     recommender = Recommender(novels_df, gt_map)
-#     recommender.evaluate_modes(gt_map, sample_size=100)
-    
-# Mode         | Precision  | Serendipity  | Diversity 
-# -----------------------------------------------------
-# Familiar     |    11.4%   |      0.287   |    0.526
-# Balanced     |    12.1%   |      0.243   |    0.574
-# Adventurous  |     7.8%   |      0.230   |    0.676
