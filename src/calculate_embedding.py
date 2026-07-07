@@ -116,6 +116,3 @@ def store_embeddings():
     db.store_embeddings(results_df)
     logger.info("Done storing embeddings")
     db.get_stats()    
-
-if __name__ == "__main__":
-    store_embeddings()
