@@ -44,12 +44,3 @@ def cleaning_pipeline(
     df = filter_to_top_tags(df, set(top["tag"]))
     df = remove_unrelated(df, unrelated)
     return df
-
-# if __name__ == "__main__":
-#     import argparse
-#     ap = argparse.ArgumentParser()
-#     ap.add_argument("--input", default="data/raw/novel_details.json")
-#     ap.add_argument("--output", default="data/processed/novel_details_cleaned.json")
-#     ap.add_argument("--min-count", type=int, default=10)
-#     args = ap.parse_args()
-#     pipeline(args.input, args.output, min_tag_count=args.min_count)
