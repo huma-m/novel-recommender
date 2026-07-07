@@ -8,7 +8,7 @@ _db = None
 def get_db():
     global _db
     if _db is None:
-        _db = NovelDB("data/novels_db.db")
+        _db = NovelDB()
     return _db
 
 def load_data():
