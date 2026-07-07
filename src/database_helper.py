@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, J
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship, Mapped, mapped_column, aliased
 from datetime import datetime, timezone
 import pandas as pd
+import os
 
 Base = declarative_base()
 
@@ -62,7 +63,9 @@ class Recommendation(Base):
     )
     
 class NovelDB:
-    def __init__(self, db_path: str = "data/novels_demo.db"):
+    def __init__(self, db_path: str = None):
+        if db_path is None:
+            db_path = os.getenv("DB_PATH", "data/novels_demo.db")
         self.engine = create_engine(f"sqlite:///{db_path}", echo=False)
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
