@@ -73,10 +73,9 @@
 
 
     <script>
-      const API_URL = 'http://127.0.0.1:8000';
 
       document.addEventListener("DOMContentLoaded", () => {
-        fetch(`${API_URL}/books?n=10`)
+        fetch("/books?n=10")
           .then(res => res.json())
           .then(data => renderBooks(data))
           .catch(() => {
@@ -95,7 +94,7 @@
         data: {
           src: async (query) => {
             try {
-              const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`);
+              const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
               const data = await response.json();
               return data.map(book => ({ id: book.id, title: book.title }));
             } catch (error) {
@@ -235,7 +234,7 @@
           'balanced';
 
         try {
-          const response = await fetch(`${API_URL}/recommendations`, {
+          const response = await fetch("/recommendations", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
