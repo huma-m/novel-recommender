@@ -63,7 +63,7 @@ class Recommendation(Base):
     )
     
 class NovelDB:
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path = None):
         if db_path is None:
             db_path = os.getenv("DB_PATH", "data/novels_demo.db")
         self.engine = create_engine(f"sqlite:///{db_path}", echo=False)
