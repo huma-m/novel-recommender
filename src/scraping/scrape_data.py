@@ -107,12 +107,12 @@ def get_novel_details(db_manager, batch_size=50, limit=100):
             time.sleep(random.uniform(2, 5))
         
         if novel_details:
-            print(f"Cleaning and adding {len(novel_details)} novels to DB")
+            logger.info(f"Cleaning and adding {len(novel_details)} novels to DB")
             df = cleaning_pipeline(pd.DataFrame(novel_details), min_tag_count=10)
             db_manager.add_novels(df)
             
         if recs_links:
-            print(f"Processing {len(recs_links)} recommendation links")
+            logger.info(f"Processing {len(recs_links)} recommendation links")
             store_recommedations(recs_links, db_manager)
         
         logger.info(f"Batch {i//batch_size + 1} done.")
@@ -162,10 +162,10 @@ def store_recommedations(recs_links, db_manager):
     time.sleep(random.uniform(7, 10))
     
 if __name__ == "__main__":
-    print("Starting novel scraping pipeline...")
+    logger.info("Starting novel scraping pipeline...")
     db = NovelDB()
-    print(f"Database initialized. Current count: {db.get_stats()}")
-    
+    logger.info(f"Database initialized. Current count: {db.get_stats()}")
+
     get_novel_details(db, batch_size=50, limit=50)
-    print("Scraping complete!")
-    print(db.get_stats())
+    logger.info("Scraping complete!")
+    logger.info(f"Final stats: {db.get_stats()}")

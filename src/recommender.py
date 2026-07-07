@@ -67,7 +67,6 @@ class Recommender:
         relevance -= cfg["trope_penalty"] * (1 - t)
         relevance[idx] = -1
 
-        # Get candidate pool
         candidates = np.where(relevance > 0)[0]
         selected = []
 

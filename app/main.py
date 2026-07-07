@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from src.data_loader import load_data, get_gt_map
 from src.recommender import Recommender
@@ -17,6 +18,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+        
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 novels = load_data()
@@ -67,6 +69,3 @@ def get_recommendations(request: RecommendationRequest):
 @app.get("/", response_class=HTMLResponse)
 def read_root():
     return FileResponse("app/templates/index.html")
-
-if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
