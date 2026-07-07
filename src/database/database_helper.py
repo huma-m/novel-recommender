@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import pandas as pd
+import os
 
 Base = declarative_base()
 
