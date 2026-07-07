@@ -161,11 +161,11 @@ def store_recommedations(recs_links, db_manager):
     logger.info(f"Processed: {processed}, Failed: {failed}, Recs not found: {not_found}")
     time.sleep(random.uniform(7, 10))
     
-if __name__ == "__main__":
-    logger.info("Starting novel scraping pipeline...")
-    db = NovelDB()
-    logger.info(f"Database initialized. Current count: {db.get_stats()}")
+# if __name__ == "__main__":
+#     logger.info("Starting novel scraping pipeline...")
+#     db = NovelDB()
+#     logger.info(f"Database initialized. Current count: {db.get_stats()}")
 
-    get_novel_details(db, batch_size=50, limit=50)
-    logger.info("Scraping complete!")
-    logger.info(f"Final stats: {db.get_stats()}")
+#     get_novel_details(db, batch_size=50, limit=50)
+#     logger.info("Scraping complete!")
+#     logger.info(f"Final stats: {db.get_stats()}")
