@@ -13,8 +13,7 @@ The system consists of an offline machine learning pipeline and an online recomm
 ### Offline Pipeline
 
 - Collected and cleaned novel metadata from public sources
-- Processed approximately **3,000 novels**
-- Generated transformer embeddings for approximately **1400 fully annotated novels**
+- Generated transformer embeddings for novels tag and description
 - Stored embeddings in SQLite for efficient retrieval
 - Constructed a collaborative recommendation graph from existing recommendation links
 
