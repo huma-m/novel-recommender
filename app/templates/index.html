@@ -51,167 +51,177 @@
           Loading books...
         </div>
       </div>
-      </div>
     </div>
+  </div>
 
-    <div id="scrollOverlay" class="scroll-overlay">
-      <div class="scroll">
-        <img class="handle-left" src="../static/images/left-handle.png">
+  <div id="bookOverlay" class="book-overlay">
+    <div class="open-book">
 
-        <div class="paper-mask">
-          <div class="paper">
-            <div class="content" id="scrollContent"></div>
-          </div>
-        </div>
+      <div class="page left-page" id="leftPage"></div>
+      <div class="page right-page" id="rightPage"></div>
 
-        <img class="handle-right" src="../static/images/right-handle.png">
-      </div>
     </div>
-
-    <div class="book-overlay" id="bookOverlay"></div>
-    <div id="threeOverlay" class="three-overlay"></div>
-
-
-    <script>
-
-      document.addEventListener("DOMContentLoaded", () => {
-        fetch("/books?n=10")
-          .then(res => res.json())
-          .then(data => renderBooks(data))
-          .catch(() => {
-            document.getElementById("bookshelfContainer").innerHTML =
-              "<div class='error'>Failed to load books</div>";
-          });
-        initializeLanternModes();
-      });
-
-
-      const autoCompleteJS = new autoComplete({
-        selector: "#searchInput",
-        placeHolder: "Search by title...",
-        threshold: 1,
-        debounce: 300,
-        data: {
-          src: async (query) => {
-            try {
-              const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
-              const data = await response.json();
-              return data.map(book => ({ id: book.id, title: book.title }));
-            } catch (error) {
-              console.error(error);
-              return [];
-            }
-          },
-          cache: false,
-          keys: ["title"]
-        },
-        resultsList: {
-          tag: "ul",
-          id: "autoComplete_list",
-          class: "search-suggestions",
-          element: (list, data) => {
-            if (!data.results.length) {
-              const message = document.createElement("div");
-              message.className = "no-results";
-              message.innerHTML = `No results for "${data.query}"`;
-              list.prepend(message);
-            }
-          }
-        },
-        resultItem: {
-          element: (item, data) => {
-            item.innerHTML = `<div class="suggestion-item">${data.match}</div>`;
-          }
-        },
-        events: {
-          input: {
-            selection: (event) => {
-              const selection = event.detail.selection.value;
-              document.querySelector("#searchInput").value = selection.title;
-              window.autoCompleteJustSelected = true;
-              fetchRecommendations(selection.id, selection.title)
-              setTimeout(() => {
-                window.autoCompleteJustSelected = false;
-              }, 30);
-            }
-          },
-        }
-      });
-
-      document.getElementById('searchInput').addEventListener('keydown', (event) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          if (window.autoCompleteJustSelected) {
-            return; 
-          }
-          const firstResult = autoCompleteJS.feedback?.results[0]?.value;
-          const title = event.target.value.trim();
-          if (title) {
-            autoCompleteJS.close();
-            event.target.blur();
-            id = firstResult ? firstResult.id : null;
-            fetchRecommendations(id, title);
-          }
-        }
-      });
-
-      function initializeLanternModes() {
-        const lanterns = document.querySelectorAll('.lantern');
-        let currentMode = 'balanced';
-        let lastSearchedBook = null;
-
-        lanterns.forEach(lantern => {
-          lantern.addEventListener('click', () => {
-            lanterns.forEach(l => l.classList.remove('active'));
-
-            lantern.classList.add('active');
-
-            currentMode = lantern.getAttribute('data-mode');
-
-            console.log('Mode changed to:', currentMode);
-
-            updateRecommendationMode(currentMode);
-
-            if (lastSearchedBook) {
-              fetchRecommendations(lastSearchedBook.id, lastSearchedBook.title);
-            }
-          });
+  </div>
+  <script>
+    let currentBooks = [];
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("/books?n=10")
+        .then(res => res.json())
+        .then(data => {
+          currentBooks = data;
+          renderBooks(data, false);
+        })
+        .catch(() => {
+          document.getElementById("bookshelfContainer").innerHTML =
+            "<div class='error'>Failed to load books</div>";
         });
+      initializeLanternModes();
+    });
 
-        window.setLastSearchedBook = function (id, title) {
-          lastSearchedBook = { id, title };
-        };
+
+    const autoCompleteJS = new autoComplete({
+      selector: "#searchInput",
+      placeHolder: "Search by title...",
+      threshold: 1,
+      debounce: 300,
+      data: {
+        src: async (query) => {
+          try {
+            const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            return data.map(book => ({ id: book.id, title: book.title }));
+          } catch (error) {
+            console.error(error);
+            return [];
+          }
+        },
+        cache: false,
+        keys: ["title"]
+      },
+      resultsList: {
+        tag: "ul",
+        id: "autoComplete_list",
+        class: "search-suggestions",
+        element: (list, data) => {
+          if (!data.results.length) {
+            const message = document.createElement("div");
+            message.className = "no-results";
+            message.innerHTML = `No results for "${data.query}"`;
+            list.prepend(message);
+          }
+        }
+      },
+      resultItem: {
+        element: (item, data) => {
+          item.innerHTML = `<div class="suggestion-item">${data.match}</div>`;
+        }
+      },
+      events: {
+        input: {
+          selection: (event) => {
+            const selection = event.detail.selection.value;
+            document.querySelector("#searchInput").value = selection.title;
+            window.autoCompleteJustSelected = true;
+            fetchRecommendations(selection.id, selection.title)
+            setTimeout(() => {
+              window.autoCompleteJustSelected = false;
+            }, 30);
+          }
+        },
       }
+    });
 
-      function updateRecommendationMode(mode) {
-        window.currentRecommendationMode = mode;
-        sessionStorage.setItem('recommendationMode', mode);
-      }
-
-      function renderBooks(books) {
-        const container = document.getElementById('bookshelfContainer');
-
-        if (books.length === 0) {
-          container.innerHTML = '<div class="no-results">No books found</div>';
+    document.getElementById('searchInput').addEventListener('keydown', (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (window.autoCompleteJustSelected) {
           return;
         }
-
-        const booksPerShelf = 5;
-        const shelves = [];
-
-        for (let i = 0; i < books.length; i += booksPerShelf) {
-          shelves.push(books.slice(i, i + booksPerShelf));
+        const firstResult = autoCompleteJS.feedback?.results[0]?.value;
+        const title = event.target.value.trim();
+        if (title) {
+          autoCompleteJS.close();
+          event.target.blur();
+          id = firstResult ? firstResult.id : null;
+          fetchRecommendations(id, title);
         }
+      }
+    });
 
-        container.innerHTML = shelves.map(shelf => `
+    function initializeLanternModes() {
+      const lanterns = document.querySelectorAll('.lantern');
+      let currentMode = 'balanced';
+      let lastSearchedBook = null;
+
+      lanterns.forEach(lantern => {
+        lantern.addEventListener('click', () => {
+          lanterns.forEach(l => l.classList.remove('active'));
+
+          lantern.classList.add('active');
+
+          currentMode = lantern.getAttribute('data-mode');
+
+          console.log('Mode changed to:', currentMode);
+
+          updateRecommendationMode(currentMode);
+
+          if (lastSearchedBook) {
+            fetchRecommendations(lastSearchedBook.id, lastSearchedBook.title);
+          }
+        });
+      });
+
+      window.setLastSearchedBook = function (id, title) {
+        lastSearchedBook = { id, title };
+      };
+    }
+
+    function updateRecommendationMode(mode) {
+      window.currentRecommendationMode = mode;
+      sessionStorage.setItem('recommendationMode', mode);
+    }
+
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+
+      resizeTimer = setTimeout(() => {
+        renderBooks(currentBooks);
+      }, 200);
+    });
+
+    function getBooksPerShelf() {
+      if (window.innerWidth < 480) return 2;
+      if (window.innerWidth < 768) return 3;
+      return 5;
+    }
+
+    function renderBooks(books, isRecommendation = true) {
+      const container = document.getElementById('bookshelfContainer');
+
+      if (books.length === 0) {
+        container.innerHTML = '<div class="no-results">No books found</div>';
+        return;
+      }
+
+      const booksPerShelf = getBooksPerShelf();
+      const shelves = [];
+
+      for (let i = 0; i < books.length; i += booksPerShelf) {
+        shelves.push(books.slice(i, i + booksPerShelf));
+      }
+
+      container.innerHTML = shelves.map(shelf => `
                 <div class="shelf-unit">
                     <div class="books-container">
                         ${shelf.map(book => `
                             <div class="book" 
-                                 onclick="toggleBook(this)"
+                                 onclick="toggleBook(this,${isRecommendation})"
                                  data-title="${book.title}"
                                  data-description="${book.description}"
-                                 data-link="${book.link}">
+                                 data-link="${book.link}"
+                                 data-genre="${book.genres}"
+                                 data-tags="${book.tags}">
                                 <div class="book-cover">
                                       <div class="book-title-overlay">${book.title}</div>
                                       <img src="../static/images/book_cover.png" alt="${book.title}"></img>
@@ -224,91 +234,106 @@
                     </div>
                 </div>
             `).join('');
-      }
+    }
 
-      async function fetchRecommendations(id, title) {
-        console.log('Fetching recommendations for:', id, title);
+    async function fetchRecommendations(id, title) {
+      console.log('Fetching recommendations for:', id, title);
 
-        const mode = window.currentRecommendationMode ||
-          sessionStorage.getItem('recommendationMode') ||
-          'balanced';
+      const mode = window.currentRecommendationMode ||
+        sessionStorage.getItem('recommendationMode') ||
+        'balanced';
 
-        try {
-          const response = await fetch("/recommendations", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id,
-              title,
-              mode: mode,
-              top_n: 20,
-              min_similarity: 0.2
-            })
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
-          }
-          const data = await response.json();
-          renderBooks(data.recommendations);
-
-          if (window.setLastSearchedBook) {
-            window.setLastSearchedBook(id, title);
-          }
+      try {
+        const response = await fetch("/recommendations", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id,
+            title,
+            mode: mode,
+            top_n: 20,
+            min_similarity: 0.2
+          })
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
         }
-        catch (error) {
-          console.error('Recommendation error:', error);
-          document.getElementById('bookshelfContainer').innerHTML =
-            '<div class="error">Failed to load recommendations</div>';
+        const data = await response.json();
+        currentBooks = data.recommendations;
+        renderBooks(data.recommendations);
+
+        if (window.setLastSearchedBook) {
+          window.setLastSearchedBook(id, title);
         }
       }
-
-      function toggleBook(bookElement) {
-        const overlay = document.getElementById("scrollOverlay");
-        const content = document.getElementById("scrollContent");
-
-        const title = bookElement.querySelector(".book-title-overlay").innerText;
-        const description = bookElement.getAttribute("data-description");
-
-        const link = bookElement.getAttribute("data-link");
-        content.innerHTML = `
-          <h2 class="introduction" style="text-align: center;"><a href="${link}" target="_blank">${title}</a></h2>
-          ${chunkTextRandom(description)
-            .map(p => `<p class="introduction">&ensp;&ensp;&ensp;&ensp;${p}</p>`)
-            .join("")}
-        `;
-
-        overlay.classList.add("active");
-        document.body.classList.add("lock-scroll");
-
-        overlay.onclick = (e) => {
-          if (
-            e.target === overlay ||
-            e.target.classList.contains("handle-left") ||
-            e.target.classList.contains("handle-right")
-          ) {
-            overlay.classList.remove("active");
-            document.body.classList.remove("lock-scroll");
-          }
-        };
+      catch (error) {
+        console.error('Recommendation error:', error);
+        document.getElementById('bookshelfContainer').innerHTML =
+          '<div class="error">Failed to load recommendations</div>';
       }
-      function chunkTextRandom(text, min = 5, max = 12) {
-        const sentenceRegex = /[^.!?]+[.!?](?=(?:["”']?\s)|$)/g;
-        const sentences = text.match(sentenceRegex) || [text];
-        const paragraphs = [];
+    }
 
-        let i = 0;
-        while (i < sentences.length) {
-          const count =
-            Math.floor(Math.random() * (max - min + 1)) + min;
+    function toggleBook(bookElement, isRecommendation) {
+      const label = isRecommendation ? "Shared Tropes" : "Tags"
 
-          paragraphs.push(
-            sentences.slice(i, i + count).join(" ").trim()
-          );
-          i += count;
-        }
-        return paragraphs;
+      const overlay = document.getElementById("bookOverlay");
+      const left = document.getElementById("leftPage");
+      const right = document.getElementById("rightPage");
+
+      const title = bookElement.querySelector(".book-title-overlay").innerText;
+      const description = bookElement.getAttribute("data-description");
+      const link = bookElement.getAttribute("data-link");
+      const genre = bookElement.getAttribute("data-genre").replace(/,/g, ", ");;
+      const tags = bookElement.getAttribute("data-tags").replace(/,/g, ", ");;
+
+      left.innerHTML = `
+        <h2 class="introduction">
+            <a href="${link}" target="_blank">${title}</a>
+            <p class="introduction meta">Genre: ${genre}</p>
+            <p class="introduction meta">${label}: ${tags}</p>
+        </h2>
+      `;
+
+      right.innerHTML = `
+        ${chunkTextRandom(description)
+          .map(p => `<p class="introduction">${p}</p>`)
+          .join("")}
+      `;
+
+      overlay.classList.add("active");
+      document.body.classList.add("lock-scroll");
+      document.body.style.overflow = "hidden";
+    }
+    const overlay = document.getElementById("bookOverlay");
+
+    overlay.addEventListener("click", (e) => {
+
+      if (e.target !== overlay) return;
+
+      overlay.classList.remove("active");
+      document.body.classList.remove("lock-scroll");
+
+      document.body.style.overflow = "";
+    });
+
+    function chunkTextRandom(text, min = 5, max = 12) {
+      const sentenceRegex = /[^.!?]+[.!?](?=(?:["”']?\s)|$)/g;
+      const sentences = text.match(sentenceRegex) || [text];
+      const paragraphs = [];
+
+      let i = 0;
+      while (i < sentences.length) {
+        const count =
+          Math.floor(Math.random() * (max - min + 1)) + min;
+
+        paragraphs.push(
+          sentences.slice(i, i + count).join(" ").trim()
+        );
+        i += count;
       }
-    </script>
+      return paragraphs;
+    }
+  </script>
 </body>
 
 </html>

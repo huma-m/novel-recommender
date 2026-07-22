@@ -41,7 +41,9 @@ def get_random_books(n: int = 10):
         "id",
         "title",
         "description",
-        "link"
+        "tags",
+        "link",
+        "genres"
     ]].to_dict(orient="records")
     
 @app.get("/search")

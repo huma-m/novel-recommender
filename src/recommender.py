@@ -100,13 +100,14 @@ class Recommender:
         return {
             "id": self.idx_to_id[tgt],
             "title": row["title"],
+            "genres": row["genres"],
             "score": round(float(score[tgt]), 4),
             "breakdown": {
                 "trope": round(float(t[tgt]), 3),
                 "desc":  round(float(d[tgt]), 3),
                 "collab":round(float(c[tgt]), 3),
             },
-            "common_tags": list(src_tags & tgt_tags),
+            "tags": list(src_tags & tgt_tags),
             "description": row["description"],
             "link": row["link"],
         }

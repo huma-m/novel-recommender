@@ -1,10 +1,13 @@
-from typing import Dict, List
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, JSON, ForeignKey
+from typing import Dict, List, Optional
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship, Mapped, mapped_column, aliased
+from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime, timezone
 import pandas as pd
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 Base = declarative_base()
 
 class Novel(Base):
@@ -14,12 +17,12 @@ class Novel(Base):
     title = Column(String(300), nullable=False)
     link = Column(String(500), unique=True, nullable=False)
     description = Column(Text)
-    genres = Column(JSON)
-    tags = Column(JSON)
+    genres: Mapped[Optional[list[str]]] = mapped_column(JSONB)
+    tags: Mapped[Optional[list[str]]] = mapped_column(JSONB)
     last_update: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
     
-    tag_embedding: Mapped[list[float]]= mapped_column(JSON)
-    desc_embedding: Mapped[list[float]]= mapped_column(JSON)
+    tag_embedding: Mapped[Optional[list[float]]] = mapped_column(JSONB)
+    desc_embedding: Mapped[Optional[list[float]]] = mapped_column(JSONB)
     
     recommendations = relationship(
         'Recommendation', 
@@ -63,12 +66,14 @@ class Recommendation(Base):
     )
     
 class NovelDB:
-    def __init__(self, db_path = None):
-        if db_path is None:
-            db_path = os.getenv("DB_PATH", "data/novels_demo.db")
-        self.engine = create_engine(f"sqlite:///{db_path}", echo=False)
-        Base.metadata.create_all(self.engine)
-        self.Session = sessionmaker(bind=self.engine)
+    def __init__(self):
+        db_path = os.getenv("DB_PATH")
+        if db_path:
+            self.engine = create_engine(db_path, echo=False)
+            Base.metadata.create_all(self.engine)
+            self.Session = sessionmaker(bind=self.engine)
+        else:
+            print("Database not found")
        
     def add_novels(self, df):
         session = self.Session()
@@ -219,8 +224,8 @@ class NovelDB:
         try:
             completed_novels = session.query(Novel).filter(
                     Novel.description != "",
-                    Novel.tags.isnot(None), Novel.tags != [],
-                    Novel.genres.isnot(None), Novel.genres != [],
+                    Novel.tags != [],
+                    Novel.genres != [],
                     # TEMPORARY
                     Novel.tag_embedding.isnot(None),
                     Novel.desc_embedding.isnot(None)
@@ -235,8 +240,8 @@ class NovelDB:
         try:
             return session.query(Novel).filter(
                     Novel.description != "",
-                    Novel.tags.isnot(None), Novel.tags != [],
-                    Novel.genres.isnot(None), Novel.genres != [],
+                    Novel.tags != [],
+                    Novel.genres != [],
                     Novel.tag_embedding.is_(None),
                     Novel.desc_embedding.is_(None)
                 ).all()
@@ -250,8 +255,8 @@ class NovelDB:
             
             completed_details = session.query(Novel).filter(
                 Novel.description != "",
-                Novel.tags.isnot(None), Novel.tags != [],
-                Novel.genres.isnot(None), Novel.genres != []
+                Novel.genres !=[],
+                Novel.tags != [],
             ).count()
 
             # Novels with tag embedding
@@ -335,14 +340,29 @@ class NovelDB:
                 .join(Source, Recommendation.novel_id == Source.id)
                 .join(Target, Recommendation.recommendation_id == Target.id)
                 .filter(
-                    Source.description.isnot(None), Source.description != "",
-                    Source.tags.isnot(None), Source.tags != [],
+                    Source.description != "",
+                    Source.tags != [],
 
-                    Target.description.isnot(None), Target.description != "",
-                    Target.tags.isnot(None), Target.tags != [],
+                    Target.description != "",
+                    Target.tags != [],
                 )
             )
             return query.all()
 
         finally:
             session.close()
+
+# print(len(db.get_completed_novels()))
+# print(len(db.get_missing_embedding()))
+# db.get_stats()
+#             total_novels: 4306,
+#             completed_details: 1486,
+#             with_tag_embedding: 1477,
+#             with_desc_embedding: 1477,
+#             novels_with_recommendations: 1416
+
+            # total_novels: 4297,
+            # completed_details: 1477,
+            # with_tag_embedding: 1477,
+            # with_desc_embedding: 1477,
+            # novels_with_recommendations: 1411
