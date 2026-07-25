@@ -68,12 +68,17 @@ class Recommendation(Base):
 class NovelDB:
     def __init__(self):
         db_path = os.getenv("DB_PATH")
-        if db_path:
-            self.engine = create_engine(db_path, echo=False)
-            Base.metadata.create_all(self.engine)
-            self.Session = sessionmaker(bind=self.engine)
-        else:
-            print("Database not found")
+        if not db_path:
+            raise RuntimeError("DB_PATH environment variable is not set.")
+
+        self.engine = create_engine(
+            db_path,
+            echo=False,
+            pool_pre_ping=True,
+        )
+
+        Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
        
     def add_novels(self, df):
         session = self.Session()
