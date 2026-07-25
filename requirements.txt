@@ -6,3 +6,4 @@ scipy==1.16.3
 SQLAlchemy==2.0.44
 uvicorn==0.38.0
 psycopg2-binary==2.9.12
+python-dotenv==1.2.1
