@@ -1,7 +1,11 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
+from pathlib import Path 
 
+
+ROOT = Path(__file__).resolve().parent.parent
+MATRIX_DIR = ROOT / "matrix"
 
 class Recommender:
     def __init__(self, novels_df, gt_map):
@@ -9,31 +13,40 @@ class Recommender:
         self.id_to_idx = {nid: i for i, nid in enumerate(self.df['id'])}
         self.idx_to_id = {i: nid for nid, i in self.id_to_idx.items()}
         n = len(self.df)
+        
+        trope_path = MATRIX_DIR / "trope_sim.npy"
+        desc_path = MATRIX_DIR / "desc_sim.npy"
+        collab_path = MATRIX_DIR / "collab_sim.npy"
 
-        trope_matrix = np.vstack(self.df["tag_embedding"]).astype(np.float32)
-        desc_matrix  = np.vstack(self.df["desc_embedding"]).astype(np.float32)
+        if trope_path.exists() and desc_path.exists() and collab_path.exists():
+            self.trope_sim = np.load(trope_path)
+            self.desc_sim = np.load(desc_path)
+            self.collab_sim = np.load(collab_path)
+        else:
+            trope_matrix = np.vstack(self.df["tag_embedding"]).astype(np.float32)
+            desc_matrix  = np.vstack(self.df["desc_embedding"]).astype(np.float32)
 
-        self.trope_sim = self._normalize(cosine_similarity(trope_matrix))
-        self.desc_sim  = self._normalize(cosine_similarity(desc_matrix))
+            self.trope_sim = self._normalize(cosine_similarity(trope_matrix))
+            self.desc_sim  = self._normalize(cosine_similarity(desc_matrix))
 
-        rows, cols = [], []
-        for src, tgts in gt_map.items():
-            if src in self.id_to_idx:
-                s = self.id_to_idx[src]
-                for t in tgts:
-                    if t in self.id_to_idx:
-                        rows.append(s)
-                        cols.append(self.id_to_idx[t])
+            rows, cols = [], []
+            for src, tgts in gt_map.items():
+                if src in self.id_to_idx:
+                    s = self.id_to_idx[src]
+                    for t in tgts:
+                        if t in self.id_to_idx:
+                            rows.append(s)
+                            cols.append(self.id_to_idx[t])
 
-        adj = csr_matrix(
-            (np.ones(len(rows)), (rows, cols)),
-            shape=(n, n),
-            dtype=np.float32
-        )
-        adj = (adj + adj.T)
+            adj = csr_matrix(
+                (np.ones(len(rows)), (rows, cols)),
+                shape=(n, n),
+                dtype=np.float32
+            )
+            adj = (adj + adj.T)
 
-        self.collab_sim = self._normalize(cosine_similarity(adj)) * 0.5
-
+            self.collab_sim = self._normalize(cosine_similarity(adj)) * 0.5
+            
     def _normalize(self, x):
         x = x.astype(np.float32)
         min_v, max_v = x.min(), x.max()
